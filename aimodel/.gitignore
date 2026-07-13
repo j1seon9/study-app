@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+checkpoints/*.pt
+onnx/*.onnx
+data/clean/*
+!data/clean/.gitkeep

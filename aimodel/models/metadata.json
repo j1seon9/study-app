@@ -1,0 +1,154 @@
+{
+  "model_version": "1.3.0",
+  "trained_at": "2026-07-13T02:17:04.888328+00:00",
+  "data_count": 1044,
+  "feature_columns": [
+    "age",
+    "Medu",
+    "Fedu",
+    "traveltime",
+    "studytime",
+    "failures",
+    "famrel",
+    "freetime",
+    "goout",
+    "Dalc",
+    "Walc",
+    "health",
+    "absences",
+    "G1",
+    "G2",
+    "grade_trend",
+    "grade_average",
+    "absence_risk",
+    "support_count",
+    "subject",
+    "school",
+    "sex",
+    "address",
+    "famsize",
+    "Pstatus",
+    "Mjob",
+    "Fjob",
+    "reason",
+    "guardian",
+    "schoolsup",
+    "famsup",
+    "paid",
+    "activities",
+    "nursery",
+    "higher",
+    "internet",
+    "romantic"
+  ],
+  "accuracy": 0.8947368421052632,
+  "precision": 0.9607843137254902,
+  "recall": 0.901840490797546,
+  "f1_score": 0.930379746835443,
+  "roc_auc": 0.9557215257401974,
+  "confusion_matrix": [
+    [
+      40,
+      6
+    ],
+    [
+      16,
+      147
+    ]
+  ],
+  "random_seed": 42,
+  "best_params": {
+    "model__max_depth": 8,
+    "model__min_samples_leaf": 1,
+    "model__n_estimators": 200
+  },
+  "cross_validation_f1_mean": 0.921552559165016,
+  "cross_validation_f1_std": 0.0403431840860528,
+  "feature_importance": [
+    {
+      "feature": "numeric__grade_average",
+      "importance": 0.26338227798549063
+    },
+    {
+      "feature": "numeric__G2",
+      "importance": 0.24038016373761364
+    },
+    {
+      "feature": "numeric__G1",
+      "importance": 0.17732871698790967
+    },
+    {
+      "feature": "numeric__failures",
+      "importance": 0.03588669501780526
+    },
+    {
+      "feature": "numeric__grade_trend",
+      "importance": 0.022325204300047245
+    },
+    {
+      "feature": "numeric__absences",
+      "importance": 0.015773077548587804
+    },
+    {
+      "feature": "categorical__subject_portuguese",
+      "importance": 0.01451922484460449
+    },
+    {
+      "feature": "categorical__subject_math",
+      "importance": 0.013987241421823999
+    },
+    {
+      "feature": "numeric__goout",
+      "importance": 0.011137537935922474
+    },
+    {
+      "feature": "categorical__higher_yes",
+      "importance": 0.010201136300632923
+    },
+    {
+      "feature": "numeric__Walc",
+      "importance": 0.008576949476549803
+    },
+    {
+      "feature": "categorical__higher_no",
+      "importance": 0.008253732414367566
+    },
+    {
+      "feature": "numeric__age",
+      "importance": 0.008211666338589505
+    },
+    {
+      "feature": "numeric__Dalc",
+      "importance": 0.007869167469536907
+    },
+    {
+      "feature": "numeric__Fedu",
+      "importance": 0.007661371482584551
+    },
+    {
+      "feature": "numeric__freetime",
+      "importance": 0.007530225630287301
+    },
+    {
+      "feature": "numeric__health",
+      "importance": 0.007222723459689494
+    },
+    {
+      "feature": "numeric__Medu",
+      "importance": 0.007135339829939194
+    },
+    {
+      "feature": "numeric__famrel",
+      "importance": 0.006139189479361924
+    },
+    {
+      "feature": "numeric__studytime",
+      "importance": 0.005969153174172222
+    }
+  ],
+  "feature_importance_path": "C:\\Users\\J1S9O\\Downloads\\study-app-privacy-minimized\\aimodel\\models\\feature_importance.csv",
+  "feature_importance_plot_path": "C:\\Users\\J1S9O\\Downloads\\study-app-privacy-minimized\\aimodel\\models\\feature_importance.png",
+  "model_path": "C:\\Users\\J1S9O\\Downloads\\study-app-privacy-minimized\\aimodel\\models\\model.pkl",
+  "preprocess_path": "C:\\Users\\J1S9O\\Downloads\\study-app-privacy-minimized\\aimodel\\models\\preprocess.pkl",
+  "feature_columns_path": "C:\\Users\\J1S9O\\Downloads\\study-app-privacy-minimized\\aimodel\\models\\feature_columns.json"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "study-app-client",
+  "version": "1.0.0",
+  "description": "AI 기반 개인 맞춤형 자율학습 지원 웹서비스 - Frontend",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mui/icons-material": "^5.16.4",
+    "@mui/material": "^5.16.4",
+    "@emotion/react": "^11.13.0",
+    "@emotion/styled": "^11.13.0",
+    "axios": "^1.7.2",
+    "chart.js": "^4.4.3",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.25.1",
+    "tesseract.js": "^5.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^8.1.4"
+  }
+}
