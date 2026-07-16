@@ -18,6 +18,7 @@ from ai.config import (
     MODEL_VERSION,
 )
 from ai.feature_engineering import DataValidationError
+from ai.ocr_score_engine import OcrSubjectScore, build_ocr_recommendation
 from ai.predict import predict
 from ai.prediction_validation import PredictionValidationError
 from ai.train import train_model
@@ -104,6 +105,31 @@ class PredictRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     records: list[StudentSubjectRecord] = Field(..., min_length=1)
+
+
+class OcrSubjectRecord(BaseModel):
+    """One subject's OCR-extracted 학평 성적표 데이터.
+
+    StudentSubjectRecord(UCI 데이터셋 스키마)와는 완전히 다른, 학평 성적표에
+    실제로 존재하는 필드만 받는다 (failures/absences/studytime 등은 없음).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    subject: str = Field(..., min_length=1, description="과목명 (국어/수학/영어/한국사/사회/과학 등)")
+    grade: int = Field(..., ge=1, le=9, description="등급 (1=최상위, 9=최하위)")
+    percentile: float | None = Field(default=None, ge=0, le=100, description="전국 백분위 (절대평가 과목은 없을 수 있음)")
+    wrong_items: list[int] = Field(default_factory=list, description="오답 문항 번호")
+    total_items: int = Field(default=0, ge=0, description="전체 문항 수")
+    prev_grade: int | None = Field(default=None, ge=1, le=9, description="직전 시험 등급 (추세 계산용)")
+
+
+class OcrPredictRequest(BaseModel):
+    """OCR로 읽은 성적표 기반 추천 요청."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    records: list[OcrSubjectRecord] = Field(..., min_length=1)
 
 
 class CurriculumItem(BaseModel):
@@ -199,6 +225,41 @@ def predict_recommendation(request: PredictRequest) -> dict[str, Any]:
             detail=str(exc),
         ) from exc
     except (DataValidationError, PredictionValidationError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+
+@app.post(
+    "/api/ocr-recommend",
+    response_model=PredictionResponse,
+    dependencies=[Depends(require_api_key)],
+)
+def ocr_recommend(request: OcrPredictRequest) -> dict[str, Any]:
+    """OCR로 읽은 학평 성적표 데이터로 규칙 기반 학습 추천을 반환한다.
+
+    기존 ``/api/predict``(UCI 데이터셋 기반 sklearn 모델)와는 별도 경로다.
+    이쪽은 학습된 모델을 쓰지 않고, ``ocr_score_engine``의 규칙 기반 risk_score
+    계산 + 기존 ``curriculum_engine``/``ebs_engine``을 그대로 재사용한 결과를 반환한다.
+    응답 스키마(``PredictionResponse``)는 ``/api/predict``와 동일하므로, 클라이언트는
+    두 엔드포인트를 같은 방식으로 처리할 수 있다.
+    """
+
+    try:
+        scores = [
+            OcrSubjectScore(
+                subject=r.subject,
+                grade=r.grade,
+                percentile=r.percentile,
+                wrong_items=r.wrong_items,
+                total_items=r.total_items,
+                prev_grade=r.prev_grade,
+            )
+            for r in request.records
+        ]
+        return build_ocr_recommendation(scores)
+    except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),

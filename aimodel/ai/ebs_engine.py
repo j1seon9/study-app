@@ -14,9 +14,17 @@ from typing import Any
 from ai.config import SUBJECT_KOREAN_LABELS
 
 # 과목별 EBS 강의 카테고리 (실제 강의명이 아니라 "이런 종류를 찾아보라"는 카테고리 안내).
+# "math"/"portuguese"는 기존 UCI 데이터셋 기반 추천(rule_engine)에서 쓰던 키이고,
+# 한글 과목명들은 ocr_score_engine(학평 성적표 OCR 기반 추천)에서 쓰는 키다.
 SUBJECT_LECTURE_CATEGORIES = {
     "math": "수학 개념완성/기출문제풀이 강좌",
     "portuguese": "국어 문학·비문학 독해 강좌",
+    "국어": "국어 문학·비문학 독해 강좌",
+    "수학": "수학 개념완성/기출문제풀이 강좌",
+    "영어": "영어 듣기·독해·어휘 강좌",
+    "한국사": "한국사 개념완성 강좌",
+    "사회": "사회탐구 개념완성 강좌",
+    "과학": "과학탐구 개념완성 강좌",
 }
 DEFAULT_LECTURE_CATEGORY = "기초 개념 강좌"
 
