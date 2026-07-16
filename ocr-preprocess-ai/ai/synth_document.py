@@ -29,6 +29,10 @@ from PIL import Image, ImageDraw, ImageFont
 FONT_CANDIDATES = [
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+    "C:/Windows/Fonts/malgun.ttf",
+    "C:/Windows/Fonts/malgunbd.ttf",
+    "C:/Windows/Fonts/NanumGothic.ttf",
+    "C:/Windows/Fonts/NanumGothicBold.ttf",
 ]
 
 # 실제 문서 원본 해상도로 그린 뒤, 요청받은 (width, height)로 리사이즈해서 반환한다.
@@ -43,11 +47,25 @@ SCIENCE_SUBJECTS = ["물리학I", "화학I", "생명과학I", "지구과학I"]
 _FONT_CACHE: dict[tuple[int, bool], ImageFont.FreeTypeFont] = {}
 
 
+def _resolve_font_path(bold: bool) -> str | None:
+    preferred = FONT_CANDIDATES[1] if bold else FONT_CANDIDATES[0]
+    for path in (preferred, *FONT_CANDIDATES):
+        try:
+            ImageFont.truetype(path, 12)
+            return path
+        except OSError:
+            continue
+    return None
+
+
 def _font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
     key = (size, bold)
     if key not in _FONT_CACHE:
-        path = FONT_CANDIDATES[1] if bold else FONT_CANDIDATES[0]
-        _FONT_CACHE[key] = ImageFont.truetype(path, size, index=0)
+        path = _resolve_font_path(bold)
+        if path is None:
+            _FONT_CACHE[key] = ImageFont.load_default()
+        else:
+            _FONT_CACHE[key] = ImageFont.truetype(path, size, index=0)
     return _FONT_CACHE[key]
 
 

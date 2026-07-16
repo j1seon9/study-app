@@ -1,6 +1,11 @@
 import AiReport from '../models/AiReport.js';
+import MockExamResult from '../models/MockExamResult.js';
 import { buildPredictionRecords } from '../services/aiAdapter.js';
-import { checkAiHealth, predictStudyReport } from '../services/aiClient.js';
+import { checkAiHealth, predictOcrStudyReport, predictStudyReport } from '../services/aiClient.js';
+import {
+  buildOcrRecords,
+  buildOcrRecordsFromMockExams,
+} from '../services/ocrAdapter.js';
 
 /**
  * 개인정보 최소 수집 정책(AI 개인정보 및 데이터 수집 정책 문서)에 따라
@@ -60,6 +65,73 @@ const buildRecommendedOrder = (prediction) => {
   return order;
 };
 
+const saveAiReportFromPrediction = async (userId, prediction) =>
+  AiReport.create({
+    userId,
+    recommendedStudyMinutes: prediction.recommended_study_time_minutes_per_day,
+    goalAchievability: Math.round(prediction.goal_achievement_probability * 100),
+    weakSubjects: prediction.weak_subject ? [prediction.weak_subject] : [],
+    strongSubjects: prediction.strong_subject ? [prediction.strong_subject] : [],
+    recommendedReviewSubjects: prediction.recommended_review_subject
+      ? [prediction.recommended_review_subject]
+      : [],
+    recommendedOrder: buildRecommendedOrder(prediction),
+    reason: prediction.reason ?? '',
+    goalProbabilityLevel: prediction.goal_probability_level ?? null,
+    recommendedSubject: prediction.recommended_subject ?? null,
+    recommendedReviewSubject: prediction.recommended_review_subject ?? null,
+    curriculum: (prediction.curriculum ?? []).map((item) => ({
+      order: item.order,
+      subject: item.subject,
+      subjectLabel: item.subject_label,
+      allocatedMinutes: item.allocated_minutes,
+      focus: item.focus,
+    })),
+    ebsRecommendations: (prediction.ebs_recommendations ?? []).map((item) => ({
+      subject: item.subject,
+      subjectLabel: item.subject_label,
+      category: item.category,
+      reason: item.reason,
+    })),
+    analyzedAt: new Date(),
+  });
+
+const resolveOcrRecordsForUser = async (userId, body = {}) => {
+  if (Array.isArray(body.results) && body.results.length > 0) {
+    return buildOcrRecords(body.results);
+  }
+
+  const latestExam = await MockExamResult.findOne({ userId })
+    .sort({ examDate: -1, createdAt: -1 })
+    .select('examDate');
+
+  if (!latestExam) {
+    throw new Error('OCR 추천을 위해 저장된 모의고사(성적표) 기록이 필요합니다.');
+  }
+
+  const targetDate = body.examDate ? new Date(body.examDate) : latestExam.examDate;
+  const dayStart = new Date(targetDate);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+
+  const currentExams = await MockExamResult.find({
+    userId,
+    examDate: { $gte: dayStart, $lt: dayEnd },
+  }).sort({ subject: 1 });
+
+  if (currentExams.length === 0) {
+    throw new Error('선택한 시험 날짜에 해당하는 모의고사 기록이 없습니다.');
+  }
+
+  const previousExams = await MockExamResult.find({
+    userId,
+    examDate: { $lt: dayStart },
+  }).sort({ examDate: -1, createdAt: -1 });
+
+  return buildOcrRecordsFromMockExams(currentExams, previousExams);
+};
+
 /**
  * POST /api/ai/reports
  * 웹서비스에 쌓인 학습 데이터(공부 계획/기록/미니테스트/모의고사)만으로
@@ -71,35 +143,7 @@ export const createAiReport = async (req, res, next) => {
     const records = await buildPredictionRecords(req.userId, NEUTRAL_PROFILE);
     const prediction = await predictStudyReport(records);
 
-    const report = await AiReport.create({
-      userId: req.userId,
-      recommendedStudyMinutes: prediction.recommended_study_time_minutes_per_day,
-      goalAchievability: Math.round(prediction.goal_achievement_probability * 100),
-      weakSubjects: prediction.weak_subject ? [prediction.weak_subject] : [],
-      strongSubjects: prediction.strong_subject ? [prediction.strong_subject] : [],
-      recommendedReviewSubjects: prediction.recommended_review_subject
-        ? [prediction.recommended_review_subject]
-        : [],
-      recommendedOrder: buildRecommendedOrder(prediction),
-      reason: prediction.reason ?? '',
-      goalProbabilityLevel: prediction.goal_probability_level ?? null,
-      recommendedSubject: prediction.recommended_subject ?? null,
-      recommendedReviewSubject: prediction.recommended_review_subject ?? null,
-      curriculum: (prediction.curriculum ?? []).map((item) => ({
-        order: item.order,
-        subject: item.subject,
-        subjectLabel: item.subject_label,
-        allocatedMinutes: item.allocated_minutes,
-        focus: item.focus,
-      })),
-      ebsRecommendations: (prediction.ebs_recommendations ?? []).map((item) => ({
-        subject: item.subject,
-        subjectLabel: item.subject_label,
-        category: item.category,
-        reason: item.reason,
-      })),
-      analyzedAt: new Date(),
-    });
+    const report = await saveAiReportFromPrediction(req.userId, prediction);
 
     res.status(201).json({
       success: true,
@@ -107,6 +151,40 @@ export const createAiReport = async (req, res, next) => {
       data: report,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /api/ai/reports/ocr
+ * OCR로 읽은 성적표(또는 저장된 모의고사 기록)를 FastAPI /api/ocr-recommend에 전달해
+ * 규칙 기반 학습 추천 리포트를 생성한다.
+ *
+ * 요청 본문 예시 (OCR 직후, mock-exams 저장 전에도 호출 가능):
+ * {
+ *   "results": [
+ *     { "subject": "국어", "grade": 2, "percentile": 88.5, "weakQuestions": [3, 12] },
+ *     { "subject": "수학", "grade": 5, "percentile": 61.0, "weakQuestions": [9, 16] }
+ *   ]
+ * }
+ *
+ * 본문이 비어 있으면 DB에 저장된 최신 시험일의 모의고사 기록을 자동으로 사용한다.
+ */
+export const createOcrAiReport = async (req, res, next) => {
+  try {
+    const ocrRecords = await resolveOcrRecordsForUser(req.userId, req.body ?? {});
+    const prediction = await predictOcrStudyReport(ocrRecords);
+    const report = await saveAiReportFromPrediction(req.userId, prediction);
+
+    res.status(201).json({
+      success: true,
+      message: 'OCR 성적표 기반 AI 학습 리포트가 생성되었습니다.',
+      data: report,
+    });
+  } catch (error) {
+    if (error.message?.includes('OCR 추천') || error.message?.includes('등급')) {
+      error.statusCode = 400;
+    }
     next(error);
   }
 };

@@ -81,4 +81,14 @@ export const predictStudyReport = (records) =>
     body: JSON.stringify({ records }),
   });
 
+/**
+ * POST /api/ocr-recommend — OCR 성적표 데이터 기반 규칙 추천.
+ * 응답 스키마는 /api/predict 와 동일하다.
+ */
+export const predictOcrStudyReport = (records) =>
+  request('/api/ocr-recommend', {
+    method: 'POST',
+    body: JSON.stringify({ records }),
+  });
+
 export { AiServiceError };

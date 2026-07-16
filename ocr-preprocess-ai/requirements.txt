@@ -1,0 +1,14 @@
+# ocr-preprocess-ai 전용 의존성. aimodel/requirements.txt와 별개이며 절대 합치지 말 것.
+# CPU 전용 (AMD Ryzen, GPU 없음) 기준.
+torch>=2.2.0
+numpy>=1.26.0
+opencv-python>=4.9.0
+Pillow>=10.2.0
+onnx>=1.16.0
+onnxscript>=0.1.0
+onnxruntime>=1.17.0
+pytest>=8.0.0
+
+# 선택: ai/api.py (FastAPI 배포용, 문서 9-2 항목 "선택적 배포용")를 쓸 경우에만 필요
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0

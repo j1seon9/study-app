@@ -50,6 +50,7 @@ def main():
             "output": {2: "height", 3: "width"},
         },
         opset_version=args.opset,
+        dynamo=False,
     )
     print(f"ONNX 저장 완료: {args.output}")
 

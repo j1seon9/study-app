@@ -9,6 +9,15 @@ export const createAiReport = async () => {
   return res.data.data;
 };
 
+/**
+ * OCR 성적표 데이터(또는 저장된 모의고사 기록)로 AI 리포트를 생성한다.
+ * @param {{ results?: Array, examDate?: string }} [payload]
+ */
+export const createOcrAiReport = async (payload = {}) => {
+  const res = await axiosInstance.post('/ai/reports/ocr', payload);
+  return res.data.data;
+};
+
 export const fetchAiReports = async () => {
   const res = await axiosInstance.get('/ai/reports');
   return res.data.data;
