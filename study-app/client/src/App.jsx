@@ -1,6 +1,9 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+
+import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+
 import DashboardPage from './pages/DashboardPage.jsx';
 import PlansPage from './pages/PlansPage.jsx';
 import RecordsPage from './pages/RecordsPage.jsx';
@@ -8,17 +11,30 @@ import StatsPage from './pages/StatsPage.jsx';
 import WeeklyTestsPage from './pages/WeeklyTestsPage.jsx';
 import MockExamsPage from './pages/MockExamsPage.jsx';
 import AiReportPage from './pages/AiReportPage.jsx';
+
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
-/**
- * App 루트 컴포넌트
- */
+
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+
+      <Route
+        path="/"
+        element={<LandingPage />}
+      />
+
+      <Route
+        path="/login"
+        element={<LoginPage />}
+      />
+
+      <Route
+        path="/register"
+        element={<RegisterPage />}
+      />
+
+
       <Route
         path="/dashboard"
         element={
@@ -27,6 +43,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+
       <Route
         path="/plans"
         element={
@@ -35,6 +53,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+
       <Route
         path="/records"
         element={
@@ -43,6 +63,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+
       <Route
         path="/stats"
         element={
@@ -51,6 +73,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+
       <Route
         path="/weekly-tests"
         element={
@@ -59,6 +83,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+
       <Route
         path="/mock-exams"
         element={
@@ -67,6 +93,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+
       <Route
         path="/ai-report"
         element={
@@ -75,8 +103,10 @@ function App() {
           </ProtectedRoute>
         }
       />
+
     </Routes>
   );
 }
+
 
 export default App;
