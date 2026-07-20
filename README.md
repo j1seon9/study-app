@@ -65,5 +65,5 @@ cd study-app/client && npm install && cp .env.example .env && npm run dev
 OCR → AI 연동 → UI/배포). 자세한 개발 히스토리는 각 하위 프로젝트의
 README와 `task.md` 참고.
 
-풀스텍 개발 : 오지성
+풀스텍 개발 : 오지성, 
 웹 UI/UX 개발 : 신서진
