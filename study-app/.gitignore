@@ -1,5 +1,40 @@
+# Node
 node_modules/
-dist/
+
+# Python
+__pycache__/
+*.pyc
+
+# Env
 .env
+.env.*
+
+# Logs
+logs/
 *.log
-package-lock.json
+
+# Build
+dist/
+build/
+
+# Cache
+.cache/
+.vite/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Upload
+uploads/
+temp/
+
+# AI
+*.onnx
+*.pth
+*.pt
+*.ckpt

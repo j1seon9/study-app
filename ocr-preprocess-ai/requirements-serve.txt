@@ -1,0 +1,7 @@
+# (onnxruntime만으로 추론). 이미지 크기를 줄이려면 이 파일만 설치할 것.
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+onnxruntime>=1.17.0
+opencv-python-headless>=4.9.0
+numpy>=1.26.0

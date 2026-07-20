@@ -120,7 +120,6 @@ function MockExamsPage() {
     }
   };
 
-
   const sortedExams = useMemo(
     () =>
       [...exams].sort(
@@ -131,7 +130,6 @@ function MockExamsPage() {
     [exams]
   );
 
-
   return (
     <Box
       sx={{
@@ -140,10 +138,7 @@ function MockExamsPage() {
           'linear-gradient(180deg,#F8FAFC 0%,#EFF6FF 100%)',
       }}
     >
-
       <NavBar />
-
-
       <Container
         maxWidth="sm"
         sx={{
@@ -153,8 +148,6 @@ function MockExamsPage() {
       >
 
         <Stack spacing={2}>
-
-
           <Paper
             sx={{
               p: 2.5,
@@ -164,7 +157,6 @@ function MockExamsPage() {
                 'rgba(255,255,255,.85)',
             }}
           >
-
             <Stack
               direction={{
                 xs: 'column',
@@ -177,9 +169,7 @@ function MockExamsPage() {
               }}
               spacing={1.5}
             >
-
               <Box>
-
                 <Typography
                   variant="h5"
                   sx={{
@@ -188,7 +178,6 @@ function MockExamsPage() {
                 >
                   모의고사 결과
                 </Typography>
-
 
                 <Typography
                   variant="body2"
@@ -199,10 +188,7 @@ function MockExamsPage() {
                 >
                   AI 분석을 위한 시험 결과 관리
                 </Typography>
-
               </Box>
-
-
 
               <Button
                 fullWidth
@@ -218,13 +204,8 @@ function MockExamsPage() {
               >
                 사진 인식
               </Button>
-
-
             </Stack>
-
           </Paper>
-
-
 
           {error && (
             <Alert
@@ -235,27 +216,19 @@ function MockExamsPage() {
             </Alert>
           )}
 
-
-
-
           {isLoading ? (
-
             <Paper
               sx={{
                 p: 3,
                 borderRadius: 3,
               }}
             >
-
               <Stack
                 alignItems="center"
               >
                 <CircularProgress size={32} />
               </Stack>
-
             </Paper>
-
-
 
           ) : sortedExams.length === 0 ? (
 
@@ -273,7 +246,6 @@ function MockExamsPage() {
                 등록된 모의고사 결과가 없습니다.
               </Typography>
 
-
               <Typography
                 variant="body2"
                 color="text.secondary"
@@ -286,13 +258,9 @@ function MockExamsPage() {
                 <br />
                 전체 과목을 한번에 등록할 수 있습니다.
               </Typography>
-
             </Paper>
 
-
-
           ) : (
-
             <Stack spacing={1.5}>
 
               {sortedExams.map((exam) => (
@@ -305,16 +273,9 @@ function MockExamsPage() {
               ))}
 
             </Stack>
-
           )}
-
-
         </Stack>
-
-
       </Container>
-
-
 
       <Fab
         color="primary"
@@ -330,8 +291,6 @@ function MockExamsPage() {
         <AddIcon />
       </Fab>
 
-
-
       <MockExamFormDialog
         open={formDialogOpen}
         initialExam={editingExam}
@@ -340,8 +299,6 @@ function MockExamsPage() {
         }
         onSubmit={handleSubmit}
       />
-
-
 
       <MockExamBatchImportDialog
         open={batchDialogOpen}

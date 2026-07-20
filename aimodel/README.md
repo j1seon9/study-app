@@ -1,5 +1,10 @@
 # AI 기반 개인 맞춤형 자율학습 추천 모델
 
+이 프로젝트는 `study-app`(Express 백엔드)에서 호출하는 FastAPI 추천 엔진이다.
+성적표 사진 복원 모델은 별도 프로젝트인 [`ocr-preprocess-ai`](../ocr-preprocess-ai)에
+있으며, OCR로 추출된 성적 데이터를 이 프로젝트의 추천 로직에 연결하는 다리 역할은
+`ai/ocr_score_engine.py`가 담당한다. 전체 구조는 [루트 README](../README.md) 참고.
+
 ## 1. 설계 이유
 
 현재 프로젝트의 CSV는 `student-mat.csv`, `student-por.csv`이며 컬럼은 UCI Student Performance 데이터셋 형식입니다.
@@ -19,13 +24,18 @@
 ```text
 ai/
   __init__.py
-  api.py
+  api.py                  # FastAPI 앱 (/api/predict, /api/ocr-recommend 등)
   config.py
+  curriculum_engine.py     # 일일 학습시간 배분
+  dataset_builder.py       # MongoDB → 학습 데이터셋 변환
+  ebs_engine.py            # EBS 강의 카테고리 추천 (한글 과목 지원)
   evaluation.py
   feature_engineering.py
+  ocr_score_engine.py      # OCR 성적표 데이터 → 추천 엔진 연결 브릿지
   predict.py
   prediction_validation.py
   reporting.py
+  report_generator.py
   rule_engine.py
   scheduler.py
   train.py
@@ -73,7 +83,8 @@ http://127.0.0.1:8000/docs
 
 - `GET /health`
 - `GET /api/metadata`
-- `POST /api/predict`
+- `POST /api/predict` — UCI 스키마 기반 예측
+- `POST /api/ocr-recommend` — OCR로 읽은 성적표 데이터 기반 추천 (등급/오답비율/추세)
 - `POST /api/retrain`
 
 ## 5. KST 11시 자동 재학습
@@ -106,5 +117,10 @@ models/retrain_scheduler.log
 python -m pytest
 ```
 
-테스트는 정상 입력, 결측치, 이상치, 빈 데이터, 잘못된 데이터 타입, Rule Engine 충돌 방지, 모델 저장/로드, 예측 응답 스키마, API 엔드포인트, KST 스케줄 계산을 검증합니다.
+테스트는 정상 입력, 결측치, 이상치, 빈 데이터, 잘못된 데이터 타입, Rule Engine 충돌 방지, 모델 저장/로드, 예측 응답 스키마, API 엔드포인트, KST 스케줄 계산, OCR 성적표 기반 추천(`ocr_score_engine`)을 검증합니다.
 
+## 7. 다음 단계
+
+1. Express 백엔드에서 OCR 결과를 `OcrSubjectScore` 형태로 변환해 `/api/ocr-recommend`를 호출하는 로직 연결.
+2. 실제 학평 데이터가 쌓이면 `estimate_goal_probability_from_ocr()`(임시 규칙)를 전용 예측 모델로 교체.
+3. 운영 환경에서는 `python -m ai.scheduler`가 항상 실행되도록 서비스화합니다.

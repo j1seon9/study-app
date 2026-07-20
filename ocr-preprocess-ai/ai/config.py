@@ -52,3 +52,15 @@ DEGRADE_MAX_OPS = 5
 
 for _dir in (DATA_DIR, CLEAN_DIR, SAMPLES_DIR, CHECKPOINT_DIR, ONNX_DIR):
     _dir.mkdir(parents=True, exist_ok=True)
+
+# --- 배포용 FastAPI 서버 설정 (ai/api.py) ---
+# aimodel의 AI_API_KEY/AI_CORS_ORIGINS와는 별개 서비스이므로 이름을 구분한다.
+MODEL_VERSION = "0.1.0"
+API_KEY = os.environ.get("OCR_RESTORE_API_KEY", "")
+API_KEY_HEADER = "X-API-Key"
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("OCR_RESTORE_CORS_ORIGINS", "http://localhost:5000").split(",")
+    if origin.strip()
+]
+MAX_UPLOAD_BYTES = int(os.environ.get("OCR_RESTORE_MAX_UPLOAD_MB", "15")) * 1024 * 1024
